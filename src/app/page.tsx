@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
-import KanbanBoard from "@/components/kanbanBoard";
 
 export default function Home() {
   return (
@@ -30,11 +29,6 @@ export default function Home() {
           </div>
         </nav>
       </header>
-
-      <main className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-6 ml-5 text-gray-800 dark:text-white">Proyecto FakeFacebook</h1>
-        <KanbanBoard />
-      </main>
     </div>
   );
 }

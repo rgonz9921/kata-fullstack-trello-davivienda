@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import DroppableColumn from "./columns/DroppableColumn"
-import type { HU } from "./kanban-utils"
+import type {Task} from "./kanban-utils"
 import {DndContext, DragEndEvent} from "@dnd-kit/core";
 import SprintSelector from "@/components/kanbanBoard/selector/Selector";
 
@@ -11,12 +11,12 @@ type Sprint = {
 }
 
 type Columns = {
-  todo: HU[]
-  inProgress: HU[]
-  done: HU[]
+  todo: Task[]
+  inProgress: Task[]
+  done: Task[]
 }
 
-const mockHUs: HU[] = [
+const mockHUs: Task[] = [
   {
     id: "1",
     title: "Design login",
@@ -75,14 +75,14 @@ export default function KanbanBoard() {
     inProgress: [],
     done: [],
   })
-  const [tasks, setTasks] = useState<HU[]>(mockHUs)
+  const [tasks, setTasks] = useState<Task[]>(mockHUs)
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over) return
 
     const updatedTasks = tasks.map((task) =>
-      task.id === active.id ? { ...task, status: over.id as HU["status"] } : task
+      task.id === active.id ? { ...task, status: over.id as Task["status"] } : task
     )
     setTasks(updatedTasks)
   }

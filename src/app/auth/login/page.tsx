@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { UserStar, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
+import {loginUser} from "@/services/auth";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -35,19 +36,19 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!validateForm()) {
       return
     }
-
     setIsLoading(true)
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("Login:", formData)
-    } catch (error) {
-      console.error("Login error:", error)
-      setErrors({ general: "Error al iniciar sesión. Verifica tus credenciales." })
+      const { accessToken, refreshToken } = await loginUser(formData.email, formData.password)
+      localStorage.setItem("accessToken", accessToken)
+      localStorage.setItem("refreshToken", refreshToken)
+      localStorage.setItem("user", JSON.stringify({ email: formData.email }))
+      window.location.href = "/dashboard"
+    } catch (err: any) {
+      console.error("Login error:", err)
+      setErrors({ general: err.message || "Error desconocido" })
     } finally {
       setIsLoading(false)
     }

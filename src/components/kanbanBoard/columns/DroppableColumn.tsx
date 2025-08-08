@@ -1,11 +1,11 @@
 import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable"
 import DraggableCard from "../cards/DraggableCard"
 import {useDroppable} from "@dnd-kit/core";
-import type {HU} from "@/components/kanbanBoard/kanban-utils";
+import type {Task} from "@/components/kanbanBoard/kanban-utils";
 
 type DroppableColumnProps = {
-  columnId: HU["status"]
-  items: HU[]
+  columnId: Task["status"]
+  items: Task[]
 }
 
 const columnTitleMap: Record<"todo" | "inProgress" | "done", string> = {
@@ -27,7 +27,7 @@ export default function DroppableColumn({ columnId, items }: DroppableColumnProp
       </h2>
       <SortableContext items={items.map((hu) => hu.id)} strategy={rectSortingStrategy}>
         {items.map((hu) => (
-          <DraggableCard key={hu.id} hu={hu} />
+          <DraggableCard key={hu.id} task={hu} />
         ))}
       </SortableContext>
     </div>
