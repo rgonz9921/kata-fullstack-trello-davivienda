@@ -8,6 +8,8 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {UserPlus, Eye, EyeOff} from "lucide-react"
 import Link from "next/link"
+import {createUser} from "@/services/userService";
+import {useRouter} from "next/navigation";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -20,7 +22,7 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: ""
   })
-
+  const router = useRouter()
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
@@ -46,18 +48,21 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!validateForm()) {
-      return
-    }
+    if (!validateForm()) return
 
     setIsLoading(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("Register:", formData)
-    } catch (error) {
+      await createUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      })
+      router.push("/auth/login")
+      console.log("Usuario registrado con éxito")
+    } catch (error: any) {
       console.error("Registration error:", error)
-      setErrors({general: "Error al crear la cuenta. Inténtalo de nuevo."})
+      setErrors({ general: error.message || "Error al crear la cuenta. Inténtalo de nuevo." })
     } finally {
       setIsLoading(false)
     }
@@ -195,12 +200,15 @@ export default function RegisterPage() {
                 {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 transition-colors"
-                disabled={isLoading}
-              >
-                {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Creando usuario...
+                  </div>
+                ) : (
+                  "Crear cuenta"
+                )}
               </Button>
             </form>
           </CardContent>

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { UserStar, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
-import {loginUser} from "@/services/auth";
+import {loginUser} from "@/services/authService";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
