@@ -13,7 +13,7 @@ export default function Home() {
             <div className="bg-blue-600 p-2 rounded-full">
               <BookOpen className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">FakeTrello</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-white">FakeTrello.</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/auth/login">
