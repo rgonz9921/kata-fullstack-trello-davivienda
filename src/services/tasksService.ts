@@ -19,3 +19,36 @@ export const fetchTasks = async () => {
     return [];
   }
 };
+
+export type CreateTaskPayload = {
+  title: string
+  description: string
+  priority: "low" | "medium" | "high"
+  assignee: string
+  deliveryDate: string
+  dueDate: string
+  sprint: string
+  status: "todo" | "inProgress" | "done"
+}
+
+export async function createTask(task: CreateTaskPayload) {
+  const token = localStorage.getItem("accessToken")
+  const res = await fetch("http://localhost:8080/v1/tasks", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(task),
+  })
+
+  if (res.status === 403) {
+    throw { status: 403, message: "No tienes permisos para crear tareas" };
+  }
+  if (!res.ok) {
+    throw { status: res.status, message: "Error creando la tarea" };
+  }
+
+  return res.json()
+}
+
