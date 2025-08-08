@@ -1,5 +1,6 @@
-export const fetchTasks = async (token: string) => {
+export const fetchTasks = async () => {
   try {
+    const token = localStorage.getItem("accessToken")
     const res = await fetch("http://localhost:8080/v1/tasks", {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import {useEffect, useMemo, useState} from "react"
 import DroppableColumn from "./columns/DroppableColumn"
 import type {Task} from "./kanban-utils"
 import {DndContext, DragEndEvent} from "@dnd-kit/core";
@@ -16,115 +16,92 @@ type Columns = {
   done: Task[]
 }
 
-const mockHUs: Task[] = [
-  {
-    id: "1",
-    title: "Design login",
-    description: "Design the login form",
-    priority: "high",
-    assignee: "64fc1234abc1234567890abc",
-    deliveryDate: "2025-08-20T00:00:00Z",
-    dueDate: "2025-08-25T00:00:00Z",
-    sprint: "sprint1",
-    status: "done"
-  },
-  {
-    id: "2",
-    title: "Create logo",
-    description: "Make a new logo for the app",
-    priority: "medium",
-    assignee: "64fc1234abc1234567890abc",
-    deliveryDate: "2025-08-22T00:00:00Z",
-    dueDate: "2025-08-27T00:00:00Z",
-    sprint: "sprint1",
-    status: "done"
-  },
-  {
-    id: "3",
-    title: "Main page",
-    description: "Build main page layout",
-    priority: "low",
-    assignee: "64fc1234abc1234567890abd",
-    deliveryDate: "2025-08-18T00:00:00Z",
-    dueDate: "2025-08-24T00:00:00Z",
-    sprint: "sprint2",
-    status: "done"
-  },
-  {
-    id: "4",
-    title: "Setup Tailwind",
-    description: "Configure Tailwind with Next.js",
-    priority: "high",
-    assignee: "64fc1234abc1234567890abc",
-    deliveryDate: "2025-08-15T00:00:00Z",
-    dueDate: "2025-08-19T00:00:00Z",
-    sprint: "sprint1",
-    status: "done"
-  },
-]
-
-const mockSprints: Sprint[] = [
-  { _id: "sprint1", name: "Sprint 1" },
-  { _id: "sprint2", name: "Sprint 2" },
-]
-
-export default function KanbanBoard() {
-  const [selectedSprint, setSelectedSprint] = useState<string>("sprint1")
+export default function KanbanBoard({ tasks }: { tasks: Task[] }) {
+  const [selectedSprint, setSelectedSprint] = useState<string>("")
   const [columns, setColumns] = useState<Columns>({
     todo: [],
     inProgress: [],
     done: [],
   })
-  const [tasks, setTasks] = useState<Task[]>(mockHUs)
+  const sprints: Sprint[] = useMemo(() => {
+    const unique = new Map<string, string>()
+    tasks.forEach((t) => {
+      if (!unique.has(t.sprint)) {
+        unique.set(t.sprint, t.sprintName)
+      }
+    })
+    return Array.from(unique.entries()).map(([id, name]) => ({
+      _id: id,
+      name,
+    }))
+  }, [tasks])
+
+  useEffect(() => {
+    if (sprints.length > 0 && !selectedSprint) {
+      setSelectedSprint(sprints[0]._id)
+    }
+  }, [sprints, selectedSprint])
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-    if (!over) return
+    if (!over || active.id === over.id) return
 
-    const updatedTasks = tasks.map((task) =>
-      task.id === active.id ? { ...task, status: over.id as Task["status"] } : task
-    )
-    setTasks(updatedTasks)
-  }
-  const filteredTasks = tasks.filter((task) => task.sprint === selectedSprint)
-  const grouped = {
-    todo: filteredTasks.filter((t) => t.status === "todo"),
-    inProgress: filteredTasks.filter((t) => t.status === "inProgress"),
-    done: filteredTasks.filter((t) => t.status === "done"),
+    const activeId = active.id as string
+    const sourceColumnId = Object.keys(columns).find((key) =>
+      columns[key as keyof Columns].some((task) => task.id === activeId)
+    ) as keyof Columns
+
+    const destinationColumnId = over.id as keyof Columns
+
+    if (!sourceColumnId || !destinationColumnId) return
+
+    const activeTask = columns[sourceColumnId].find((task) => task.id === activeId)
+    if (!activeTask) return
+
+    // Remover de columna fuente
+    const sourceItems = [...columns[sourceColumnId]].filter((task) => task.id !== activeId)
+
+    // Añadir a columna destino
+    const updatedTask = { ...activeTask, status: destinationColumnId }
+    const destinationItems = [...columns[destinationColumnId], updatedTask]
+
+    setColumns({
+      ...columns,
+      [sourceColumnId]: sourceItems,
+      [destinationColumnId]: destinationItems,
+    })
   }
 
   useEffect(() => {
-    const filtered = mockHUs.filter((hu) => hu.sprint === selectedSprint)
-
+    console.log("HOLA MUNDO", tasks)
+    const filtered = tasks.filter((hu) => hu.sprint === selectedSprint)
     const grouped: Columns = {
       todo: [],
       inProgress: [],
       done: [],
     }
-
     filtered.forEach((hu) => {
       const status = hu.status || "todo"
-      if (status === "todo" || status === "inProgress" || status === "done") {
-        grouped[status].push(hu)
+      if (status in grouped) {
+        grouped[status as keyof Columns].push(hu)
       }
     })
-
     setColumns(grouped)
-  }, [selectedSprint])
+  }, [selectedSprint, tasks])
 
   return (
     <div className="flex flex-col gap-4 p-4 w-full">
       <SprintSelector
         selectedSprint={selectedSprint}
         setSelectedSprint={setSelectedSprint}
-        sprints={mockSprints}
+        sprints={sprints}
       />
       {/* Kanban Columns*/}
       <DndContext onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <DroppableColumn columnId="todo" items={grouped.todo} />
-          <DroppableColumn columnId="inProgress" items={grouped.inProgress} />
-          <DroppableColumn columnId="done" items={grouped.done} />
+          <DroppableColumn columnId="todo" items={columns.todo} />
+          <DroppableColumn columnId="inProgress" items={columns.inProgress} />
+          <DroppableColumn columnId="done" items={columns.done} />
         </div>
       </DndContext>
     </div>

@@ -18,12 +18,6 @@ export default function DraggableCard({ task }: DraggableCardProps) {
     transition,
   }
 
-  const users = [
-    { _id: "64fc1234abc1234567890abc", name: "Roberth Gonzalez" },
-    { _id: "64fc1234abc1234567890abd", name: "Jane Doe" },
-  ]
-  const user = users.find((u) => u._id === task.assignee)
-
   const priorityColor = {
     low: "text-blue-500 dark:text-blue-300",
     medium: "text-blue-700 dark:text-blue-200",
@@ -41,7 +35,7 @@ export default function DraggableCard({ task }: DraggableCardProps) {
       <CardContent className="p-4 text-gray-800 dark:text-gray-100 space-y-1">
         <h3 className="text-lg font-semibold">{task.title}</h3>
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          Assigned to: <span className="font-medium">{user?.name || "Unknown"}</span>
+          Assigned to: <span className="font-medium">{task?.assigneeName || "Unknown"}</span>
         </p>
         <p className={`text-sm ${priorityColor}`}>
           Priority: {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}

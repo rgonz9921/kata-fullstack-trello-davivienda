@@ -5,12 +5,13 @@ import {Button} from "@/components/ui/button"
 import {BookOpen} from "lucide-react"
 import {useRouter} from "next/navigation"
 import KanbanBoard from "@/components/kanbanBoard"
+import {fetchTasks} from "@/services/tasksService";
 
 export default function Page() {
   const router = useRouter()
   const [userName, setUserName] = useState("")
   const [loading, setLoading] = useState(true)
-
+  const [tasks, setTasks] = useState([])
   //Mostrar correo de usuario conectado
   useEffect(() => {
     const user = localStorage.getItem("user")
@@ -30,7 +31,7 @@ export default function Page() {
     if (!token) {
       router.replace("/auth/login")
     } else {
-      setLoading(false)
+      fetchTasks().then(setTasks).finally(() => setLoading(false))
     }
   }, [])
   if (loading) {
@@ -74,7 +75,7 @@ export default function Page() {
 
       <main className="container mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold mb-6 ml-5 text-gray-800 dark:text-white">Proyecto FakeFacebook</h1>
-        <KanbanBoard/>
+        <KanbanBoard tasks={tasks}/>
       </main>
     </div>
   )
