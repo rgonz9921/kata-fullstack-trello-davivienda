@@ -138,7 +138,7 @@ export default function LoginPage() {
                   href="/auth/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
                 >
-                  ¿Olvidaste tu contraseña?
+                  ¿Olvidaste tu contraseña?.
                 </Link>
               </div>
 
